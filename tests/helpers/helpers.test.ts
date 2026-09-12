@@ -54,6 +54,10 @@ describe("helpers e entidades", () => {
     expect(isExecucaoLocal()).toBe(true);
     expect(getFrontendUrl()).toBe("https://app.example.com");
     expect(getCorsOrigins()).toContain("https://a.com");
+    expect(getCorsOrigins()).toContain("https://b.com");
+    expect(getCorsOrigins()).toContain("https://app.example.com");
+    expect(getCorsOrigins()).toContain("http://localhost:5173");
+    expect(getCorsOrigins()).toContain("https://localhost:5173");
     expect(getS3BaseUrl()).toContain("bucket");
     expect(getStripePriceId("pro")).toBe("price_pro");
     expect(getStripePriceId("ultra")).toBe("");

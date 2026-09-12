@@ -14,7 +14,9 @@
     "test:unit": "jest --verbose --runInBand",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "stripe:setup": "ts-node scripts/configurarStripe.ts"
+    "stripe:setup": "ts-node scripts/configurarStripe.ts",
+    "dynamo:setup": "ts-node scripts/criarTabelaLocal.ts",
+    "cors:s3": "ts-node scripts/configurarCorsS3.ts"
   },
   "author": "Giovani Murakami",
   "license": "ISC",

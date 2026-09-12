@@ -6,4 +6,5 @@ export enum StatusErro {
   erroConflito = 409,
   erroMuitasRequisicoes = 429,
   erroServidor = 500,
+  erroServicoIndisponivel = 503,
 }

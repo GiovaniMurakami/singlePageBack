@@ -28,8 +28,14 @@ export function getFrontendUrl(): string {
 
 export function getCorsOrigins(): string[] {
   const configuredOrigins = parseOrigins(process.env.CORS_ORIGIN);
-  const origins = [...configuredOrigins, FRONTEND_LOCAL_URL];
-  return [...new Set(origins.map(normalizeOrigin))];
+  const frontend = process.env.FRONTEND_URL?.trim();
+  const origins = [
+    ...configuredOrigins,
+    ...(frontend ? [frontend] : []),
+    FRONTEND_LOCAL_URL,
+    "https://localhost:5173",
+  ];
+  return [...new Set(origins.map(normalizeOrigin).filter(Boolean))];
 }
 
 export function getS3Bucket(): string {

@@ -107,6 +107,13 @@ export class ApiExpress {
           res.status(403).json({ mensagem: "Origem não permitida." });
           return;
         }
+        if ((err as { name?: string })?.name === "ResourceNotFoundException") {
+          logger.error({ err }, "tabela dynamodb nao encontrada");
+          res.status(503).json({
+            mensagem: "Banco ainda não está pronto. Rode npm run dynamo:setup no back.",
+          });
+          return;
+        }
         logger.error({ err }, "erro nao tratado");
         res.status(500).json({ mensagem: "Erro interno do servidor." });
       }
