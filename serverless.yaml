@@ -1,0 +1,190 @@
+service: single-page
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  timeout: 29
+  apiGateway:
+    binaryMediaTypes:
+      - application/octet-stream
+  environment:
+    JWT_SECRET: ${env:JWT_SECRET, ''}
+    JWT_SSM_PRIVATE_KEY_PARAM: ${env:JWT_SSM_PRIVATE_KEY_PARAM, self:custom.jwtSsmParams.private.${sls:stage}}
+    JWT_SSM_PUBLIC_KEY_PARAM: ${env:JWT_SSM_PUBLIC_KEY_PARAM, self:custom.jwtSsmParams.public.${sls:stage}}
+    CORS_ORIGIN: ${env:CORS_ORIGIN, 'http://localhost:5173'}
+    FRONTEND_URL: ${env:FRONTEND_URL, self:custom.frontendUrl.${sls:stage}}
+    AWS_S3_BUCKET: ${env:AWS_S3_BUCKET, 'singlepage-bucket-images'}
+    AWS_S3_REGION: ${env:AWS_S3_REGION, 'us-east-1'}
+    DYNAMODB_DATA_TABLE: ${self:custom.dataTableName.${sls:stage}}
+    DYNAMODB_DATA_REGION: ${env:DYNAMODB_DATA_REGION, 'us-east-1'}
+    STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY, ''}
+    STRIPE_WEBHOOK_SECRET: ${env:STRIPE_WEBHOOK_SECRET, ''}
+    STRIPE_PRICE_PRO: ${env:STRIPE_PRICE_PRO, ''}
+    STRIPE_PRICE_ULTRA: ${env:STRIPE_PRICE_ULTRA, ''}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+          Resource:
+            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/single-page/${sls:stage}/jwt-private-key"
+            - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/single-page/${sls:stage}/jwt-public-key"
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:DeleteObject
+          Resource:
+            - arn:aws:s3:::${env:AWS_S3_BUCKET, 'singlepage-bucket-images'}/*
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:DescribeTable
+            - dynamodb:PutItem
+            - dynamodb:DeleteItem
+            - dynamodb:Query
+            - dynamodb:UpdateItem
+            - dynamodb:TransactWriteItems
+          Resource:
+            - !GetAtt DataTable.Arn
+
+build:
+  esbuild: false
+
+custom:
+  frontendUrl:
+    dev: http://localhost:5173
+    prod: http://localhost:5173
+  dataTableName:
+    dev: single-page-dev-data
+    prod: single-page-prod-data
+  jwtSsmParams:
+    private:
+      dev: /single-page/dev/jwt-private-key
+      prod: /single-page/prod/jwt-private-key
+    public:
+      dev: /single-page/dev/jwt-public-key
+      prod: /single-page/prod/jwt-public-key
+  corsOrigins: &corsOrigins
+    - ${env:CORS_ORIGIN, 'http://localhost:5173'}
+    - http://localhost:5173
+
+package:
+  patterns:
+    - "!.env"
+    - "!.env.*"
+    - "src/**"
+    - "build/**"
+
+resources:
+  Resources:
+    DataTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      UpdateReplacePolicy: Retain
+      Properties:
+        TableName: ${self:custom.dataTableName.${sls:stage}}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+          - AttributeName: sk
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: sk
+            KeyType: RANGE
+        TimeToLiveSpecification:
+          AttributeName: expiresAt
+          Enabled: true
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+
+functions:
+  api:
+    handler: build/handler.handler
+    memorySize: 512
+    timeout: 29
+    events:
+      - http:
+          path: /health
+          method: get
+          cors:
+            origins: *corsOrigins
+            methods: [OPTIONS, GET]
+            headers: [Content-Type, Authorization]
+            allowCredentials: true
+      - http:
+          path: /usuario
+          method: any
+          cors:
+            origins: *corsOrigins
+            methods: [OPTIONS, GET, POST, PUT, PATCH, DELETE]
+            headers: [Content-Type, Authorization]
+            allowCredentials: true
+      - http:
+          path: /usuario/{proxy+}
+          method: any
+          cors:
+            origins: *corsOrigins
+            methods: [OPTIONS, GET, POST, PUT, PATCH, DELETE]
+            headers: [Content-Type, Authorization]
+            allowCredentials: true
+      - http:
+          path: /pagina
+          method: any
+          cors:
+            origins: *corsOrigins
+            methods: [OPTIONS, GET, POST, PUT, PATCH, DELETE]
+            headers: [Content-Type, Authorization]
+            allowCredentials: true
+      - http:
+          path: /pagina/{proxy+}
+          method: any
+          cors:
+            origins: *corsOrigins
+            methods: [OPTIONS, GET, POST, PUT, PATCH, DELETE]
+            headers: [Content-Type, Authorization]
+            allowCredentials: true
+      - http:
+          path: /p/{proxy+}
+          method: any
+          cors:
+            origins: *corsOrigins
+            methods: [OPTIONS, GET]
+            headers: [Content-Type, Authorization]
+            allowCredentials: true
+      - http:
+          path: /assinatura
+          method: any
+          cors:
+            origins: *corsOrigins
+            methods: [OPTIONS, GET, POST]
+            headers: [Content-Type, Authorization, Stripe-Signature]
+            allowCredentials: true
+      - http:
+          path: /assinatura/{proxy+}
+          method: any
+          cors:
+            origins: *corsOrigins
+            methods: [OPTIONS, GET, POST]
+            headers: [Content-Type, Authorization, Stripe-Signature]
+            allowCredentials: true
+      - http:
+          path: /imagem
+          method: any
+          cors:
+            origins: *corsOrigins
+            methods: [OPTIONS, GET, POST]
+            headers: [Content-Type, Authorization]
+            allowCredentials: true
+      - http:
+          path: /imagem/{proxy+}
+          method: any
+          cors:
+            origins: *corsOrigins
+            methods: [OPTIONS, GET, POST]
+            headers: [Content-Type, Authorization]
+            allowCredentials: true
