@@ -93,7 +93,7 @@ export class StripeServico implements StripeGateway {
     return { url: sessao.url };
   }
 
-  public construirEvento(payload: Buffer, assinatura: string): EventoAssinatura {
+  public construirEvento(payload: Buffer, assinatura: string): EventoAssinatura | null {
     const secret = getStripeWebhookSecret();
     if (!secret) {
       throw new Error("STRIPE_WEBHOOK_SECRET ausente.");
