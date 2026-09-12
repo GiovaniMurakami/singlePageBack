@@ -16,7 +16,8 @@
     "test:coverage": "jest --coverage",
     "stripe:setup": "ts-node scripts/configurarStripe.ts",
     "dynamo:setup": "ts-node scripts/criarTabelaLocal.ts",
-    "cors:s3": "ts-node scripts/configurarCorsS3.ts"
+    "cors:s3": "ts-node scripts/configurarCorsS3.ts",
+    "domains:api": "powershell -ExecutionPolicy Bypass -File scripts/configurarDominiosApi.ps1"
   },
   "author": "Giovani Murakami",
   "license": "ISC",

@@ -12,8 +12,8 @@ provider:
     JWT_SECRET: ${env:JWT_SECRET, ''}
     JWT_SSM_PRIVATE_KEY_PARAM: ${env:JWT_SSM_PRIVATE_KEY_PARAM, self:custom.jwtSsmParams.private.${sls:stage}}
     JWT_SSM_PUBLIC_KEY_PARAM: ${env:JWT_SSM_PUBLIC_KEY_PARAM, self:custom.jwtSsmParams.public.${sls:stage}}
-    CORS_ORIGIN: ${env:CORS_ORIGIN, 'http://localhost:5173'}
-    FRONTEND_URL: ${env:FRONTEND_URL, self:custom.frontendUrl.${sls:stage}}
+    CORS_ORIGIN: ${env:CORS_ORIGIN, self:custom.defaultCorsOrigin}
+    FRONTEND_URL: ${self:custom.frontendUrl.${sls:stage}}
     AWS_S3_BUCKET: ${env:AWS_S3_BUCKET, 'singlepage-bucket-images'}
     AWS_S3_REGION: ${env:AWS_S3_REGION, 'us-east-1'}
     DYNAMODB_DATA_TABLE: ${self:custom.dataTableName.${sls:stage}}
@@ -54,8 +54,9 @@ build:
 
 custom:
   frontendUrl:
-    dev: ${env:FRONTEND_URL, 'http://localhost:5173'}
-    prod: ${env:FRONTEND_URL, 'http://localhost:5173'}
+    dev: ${env:FRONTEND_URL_DEV, 'https://homolog.singlepage.com.br'}
+    prod: ${env:FRONTEND_URL_PROD, 'https://singlepage.com.br'}
+  defaultCorsOrigin: "http://localhost:5173,https://localhost:5173,https://homolog.singlepage.com.br,https://www.singlepage.com.br,https://singlepage.com.br"
   dataTableName:
     dev: single-page-dev-data
     prod: single-page-prod-data
@@ -70,7 +71,10 @@ custom:
   corsOrigins: &corsOrigins
     - http://localhost:5173
     - https://localhost:5173
-    - ${env:FRONTEND_URL, 'http://localhost:5173'}
+    - https://homolog.singlepage.com.br
+    - https://www.singlepage.com.br
+    - https://singlepage.com.br
+    - ${self:custom.frontendUrl.${sls:stage}}
 package:
   patterns:
     - "!.env"

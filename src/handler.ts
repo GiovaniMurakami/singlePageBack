@@ -6,11 +6,21 @@ import { logger } from "./helpers/logger";
 
 const aplicacao = app();
 const serverlessApp = serverless(aplicacao);
-const runtimeReady = preloadJwtKeys();
+let runtimeReady: Promise<void> | null = null;
+
+function ensureRuntimeReady() {
+  if (!runtimeReady) {
+    runtimeReady = preloadJwtKeys().catch((error) => {
+      runtimeReady = null;
+      throw error;
+    });
+  }
+  return runtimeReady;
+}
 
 export const handler = async (event: any, context: any) => {
   try {
-    await runtimeReady;
+    await ensureRuntimeReady();
   } catch (error) {
     logger.error({ err: error }, "falha ao inicializar runtime da lambda");
     throw error;
