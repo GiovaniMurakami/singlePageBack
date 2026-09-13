@@ -162,11 +162,7 @@ functions:
       - http:
           path: /p/{proxy+}
           method: any
-          cors:
-            origins: *corsOrigins
-            methods: [OPTIONS, GET, POST]
-            headers: [Content-Type, Authorization]
-            allowCredentials: true
+          # OPTIONS vai para o Express: precisa aceitar Origin de nome.singlepage.com.br.
       - http:
           path: /assinatura
           method: any

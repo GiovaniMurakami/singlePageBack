@@ -8,7 +8,7 @@ import { obterPlano } from "../../helpers/planos";
 import { serializarPagina } from "./serializarPagina";
 import { emailPaginaPublicada } from "../../helpers/emailModelos";
 import { enviarEmailComSeguranca } from "../../infra/services/sesServico";
-import { getFrontendUrl } from "../../helpers/env";
+import { urlPublicaPagina } from "../../helpers/env";
 
 export class PublicarPagina implements CasoDeUso<
   { paginaId: string; usuarioId: string; publicada: boolean },
@@ -67,7 +67,7 @@ export class PublicarPagina implements CasoDeUso<
     if (acabouDePublicar) {
       const dono = await this.usuarioGateway.buscarPorId(input.usuarioId);
       if (dono) {
-        const url = `${getFrontendUrl()}/${pagina.slug}`;
+        const url = urlPublicaPagina(pagina.slug);
         const modelo = emailPaginaPublicada(dono.nome, pagina.titulo, url);
         await enviarEmailComSeguranca(this.email, {
           para: dono.email,

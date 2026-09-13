@@ -1,3 +1,5 @@
+import { ehOriginSubdominioSingle, urlPublicaNoFrontend } from "./endereco";
+
 const FRONTEND_LOCAL_URL = "http://localhost:5173";
 
 function parseOrigins(value?: string): string[] {
@@ -36,6 +38,17 @@ export function getCorsOrigins(): string[] {
     "https://localhost:5173",
   ];
   return [...new Set(origins.map(normalizeOrigin).filter(Boolean))];
+}
+
+export function origemCorsPermitida(origin?: string): boolean {
+  if (!origin) return true;
+  const normalizada = normalizeOrigin(origin);
+  if (getCorsOrigins().includes(normalizada)) return true;
+  return ehOriginSubdominioSingle(normalizada);
+}
+
+export function urlPublicaPagina(slug: string): string {
+  return urlPublicaNoFrontend(getFrontendUrl(), slug);
 }
 
 export function getS3Bucket(): string {

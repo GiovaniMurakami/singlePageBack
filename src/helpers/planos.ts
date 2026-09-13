@@ -35,7 +35,7 @@ export const PLANOS: Record<CodigoPlano, DefinicaoPlano> = {
   pro: {
     codigo: "pro",
     nome: "Pro",
-    descricao: "Até 10 páginas no domínio singlepage.com.br, sem marca, sem anúncios e com formulários ilimitados.",
+    descricao: "Até 10 páginas em nome.singlepage.com.br, sem marca, sem anúncios e com formulários ilimitados.",
     precoCentavos: 990,
     precoMensalCentavos: 990,
     periodo: "mes",

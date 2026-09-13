@@ -1,7 +1,9 @@
 import { ErroPersonalizado } from "../../src/helpers/error/ErroPersonalizado";
 import { hashToken } from "../../src/helpers/tokenHash";
 import { listarPlanosPublicos, obterPlano, planoAtivoDeAssinatura } from "../../src/helpers/planos";
-import { getCorsOrigins, getFrontendUrl, getS3BaseUrl, getStripePriceId, isExecucaoLocal } from "../../src/helpers/env";
+import { getCorsOrigins, getFrontendUrl, getS3BaseUrl, getStripePriceId, isExecucaoLocal, origemCorsPermitida, urlPublicaPagina } from "../../src/helpers/env";
+import { enderecoReservado } from "../../src/helpers/endereco";
+import { slugCampo } from "../../src/helpers/validacao/campos";
 import { assertJwtConfig, resetJwtKeyCache, signToken, verifyToken, decodificarExpiracao } from "../../src/helpers/jwt";
 import { validarBody } from "../../src/helpers/validacao/validarBody";
 import { cadastrarUsuarioSchema } from "../../src/helpers/validacao/schemas";
@@ -62,6 +64,19 @@ describe("helpers e entidades", () => {
     expect(getS3BaseUrl()).toContain("bucket");
     expect(getStripePriceId("pro")).toBe("price_pro");
     expect(getStripePriceId("ultra")).toBe("");
+    process.env.FRONTEND_URL = "https://singlepage.com.br";
+    expect(urlPublicaPagina("ana-costa")).toBe("https://ana-costa.singlepage.com.br");
+    expect(origemCorsPermitida("https://ana-costa.singlepage.com.br")).toBe(true);
+    expect(origemCorsPermitida("https://evil.com")).toBe(false);
+    process.env.FRONTEND_URL = "https://homolog.singlepage.com.br";
+    expect(urlPublicaPagina("ana-costa")).toBe("https://homolog.singlepage.com.br/ana-costa");
+  });
+
+  it("endereco reservado e slug", () => {
+    expect(enderecoReservado("www")).toBe(true);
+    expect(enderecoReservado("ana-costa")).toBe(false);
+    expect(slugCampo.safeParse("www").success).toBe(false);
+    expect(slugCampo.safeParse("ana-costa").success).toBe(true);
   });
 
   it("jwt hs256 em teste", () => {

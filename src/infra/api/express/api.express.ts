@@ -8,7 +8,7 @@ import { apiRateLimiter } from "../../../middlewares/express/rateLimiter";
 import { Rotas } from "./rotas/rotas";
 import { ErroPersonalizado } from "../../../helpers/error/ErroPersonalizado";
 import { logger } from "../../../helpers/logger";
-import { getCorsOrigins } from "../../../helpers/env";
+import { origemCorsPermitida } from "../../../helpers/env";
 
 export class ApiExpress {
   private app: Express;
@@ -25,13 +25,11 @@ export class ApiExpress {
   }
 
   private adicionarMiddlewares(): void {
-    const corsOrigins = getCorsOrigins();
-
     this.app.set("trust proxy", 1);
     this.app.use(helmet());
     this.app.use(cors({
       origin: (origin, callback) => {
-        if (!origin || corsOrigins.includes(origin)) {
+        if (origemCorsPermitida(origin)) {
           callback(null, true);
           return;
         }
