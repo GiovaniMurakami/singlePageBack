@@ -29,12 +29,25 @@ describe("auth", () => {
       nome: "Ana",
       email: "ana@example.com",
       senha: "senha1234",
+      aceiteTermos: true,
     });
 
     expect(resultado.usuario.email).toBe("ana@example.com");
     expect(resultado.token).toBeTruthy();
     expect(resultado.refreshToken).toBeTruthy();
     expect(usuarioGateway.salvar).toHaveBeenCalled();
+    expect(resultado.usuario.versaoTermos).toBeTruthy();
+  });
+
+  it("recusa cadastro sem aceite dos termos", async () => {
+    await expect(
+      CadastrarUsuario.criar(criarMockUsuarioGateway(), criarMockRefreshTokenGateway(), criarMockEmailGateway()).executar({
+        nome: "Ana",
+        email: "ana@example.com",
+        senha: "senha1234",
+        aceiteTermos: false,
+      })
+    ).rejects.toMatchObject({ status: 400, message: "Aceite os Termos de Uso e a Política de Privacidade." });
   });
 
   it("nao revela se o e-mail ja existe", async () => {
@@ -46,6 +59,7 @@ describe("auth", () => {
         nome: "Ana",
         email: "a@a.com",
         senha: "senha1234",
+        aceiteTermos: true,
       })
     ).rejects.toMatchObject({ status: 400, message: "Não foi possível concluir o cadastro." });
   });
@@ -59,6 +73,7 @@ describe("auth", () => {
         nome: "Ana",
         email: "ana@example.com",
         senha: "senha1234",
+        aceiteTermos: true,
       })
     ).rejects.toMatchObject({ status: 400 });
   });

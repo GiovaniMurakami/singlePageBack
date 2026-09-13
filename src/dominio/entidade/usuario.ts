@@ -15,6 +15,8 @@ export interface UsuarioProps {
   stripeCustomerId?: string | null;
   stripeSubscriptionId?: string | null;
   emailVerificado?: boolean;
+  aceiteTermosEm?: Date | null;
+  versaoTermos?: string | null;
   criadoEm?: Date;
 }
 
@@ -29,6 +31,8 @@ export class Usuario {
   public stripeCustomerId: string | null;
   public stripeSubscriptionId: string | null;
   public emailVerificado: boolean;
+  public aceiteTermosEm: Date | null;
+  public versaoTermos: string | null;
   public criadoEm: Date;
 
   constructor({
@@ -42,6 +46,8 @@ export class Usuario {
     stripeCustomerId,
     stripeSubscriptionId,
     emailVerificado,
+    aceiteTermosEm,
+    versaoTermos,
     criadoEm,
   }: UsuarioProps) {
     this.id = id;
@@ -54,6 +60,8 @@ export class Usuario {
     this.stripeCustomerId = stripeCustomerId ?? null;
     this.stripeSubscriptionId = stripeSubscriptionId ?? null;
     this.emailVerificado = emailVerificado ?? true;
+    this.aceiteTermosEm = aceiteTermosEm ?? null;
+    this.versaoTermos = versaoTermos ?? null;
     this.criadoEm = criadoEm || new Date();
   }
 
@@ -61,7 +69,9 @@ export class Usuario {
     nome,
     email,
     senha,
-  }: Pick<UsuarioProps, "nome" | "email" | "senha">) {
+    aceiteTermosEm,
+    versaoTermos,
+  }: Pick<UsuarioProps, "nome" | "email" | "senha"> & Pick<UsuarioProps, "aceiteTermosEm" | "versaoTermos">) {
     return new Usuario({
       id: uuidv4(),
       nome: nome.trim(),
@@ -71,6 +81,8 @@ export class Usuario {
       plano: "free",
       statusAssinatura: "nenhuma",
       emailVerificado: false,
+      aceiteTermosEm: aceiteTermosEm ?? null,
+      versaoTermos: versaoTermos ?? null,
       criadoEm: new Date(),
     });
   }

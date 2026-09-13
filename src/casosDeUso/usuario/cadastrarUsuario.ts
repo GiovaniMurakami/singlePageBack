@@ -8,11 +8,13 @@ import { ErroPersonalizado } from "../../helpers/error/ErroPersonalizado";
 import { StatusErro } from "../../helpers/error/statusErro";
 import { emitirSessao } from "./emitirSessao";
 import { dispararVerificacaoEmail } from "./verificarEmail";
+import { VERSAO_TERMOS } from "../../helpers/termos";
 
 export type CadastrarUsuarioInputDto = {
   nome: string;
   email: string;
   senha: string;
+  aceiteTermos: boolean;
 };
 
 export class CadastrarUsuario implements CasoDeUso<CadastrarUsuarioInputDto, Awaited<ReturnType<typeof emitirSessao>>> {
@@ -27,6 +29,13 @@ export class CadastrarUsuario implements CasoDeUso<CadastrarUsuarioInputDto, Awa
   }
 
   public async executar(input: CadastrarUsuarioInputDto) {
+    if (!input.aceiteTermos) {
+      throw ErroPersonalizado.criar({
+        mensagem: "Aceite os Termos de Uso e a Política de Privacidade.",
+        status: StatusErro.erroParametro,
+      });
+    }
+
     const email = input.email.trim().toLowerCase();
     const existente = await this.usuarioGateway.buscarPorEmail(email);
     if (existente) {
@@ -40,6 +49,8 @@ export class CadastrarUsuario implements CasoDeUso<CadastrarUsuarioInputDto, Awa
       nome: input.nome,
       email,
       senha: await bcrypt.hash(input.senha, 12),
+      aceiteTermosEm: new Date(),
+      versaoTermos: VERSAO_TERMOS,
     });
 
     try {

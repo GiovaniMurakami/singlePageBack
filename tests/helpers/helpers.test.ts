@@ -74,6 +74,8 @@ describe("helpers e entidades", () => {
 
   it("endereco reservado e slug", () => {
     expect(enderecoReservado("www")).toBe(true);
+    expect(enderecoReservado("termos")).toBe(true);
+    expect(enderecoReservado("privacidade")).toBe(true);
     expect(enderecoReservado("ana-costa")).toBe(false);
     expect(slugCampo.safeParse("www").success).toBe(false);
     expect(slugCampo.safeParse("ana-costa").success).toBe(true);
@@ -95,7 +97,7 @@ describe("helpers e entidades", () => {
     expect(res.statusCode).toBe(400);
     const ok = validarBody(
       cadastrarUsuarioSchema,
-      { nome: "Ana Silva", email: "ana@example.com", senha: "senha1234" },
+      { nome: "Ana Silva", email: "ana@example.com", senha: "senha1234", aceiteTermos: true },
       mockResponse() as never
     );
     expect(ok?.email).toBe("ana@example.com");

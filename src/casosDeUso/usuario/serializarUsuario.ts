@@ -12,6 +12,8 @@ export function serializarUsuario(usuario: Usuario) {
     statusAssinatura: usuario.statusAssinatura,
     limites: obterPlano(planoEfetivo),
     emailVerificado: usuario.emailVerificado,
+    aceiteTermosEm: usuario.aceiteTermosEm,
+    versaoTermos: usuario.versaoTermos,
     criadoEm: usuario.criadoEm,
   };
 }

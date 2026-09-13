@@ -25,6 +25,7 @@ export const cadastrarUsuarioSchema = z.object({
   nome: z.string().trim().min(2, "Informe seu nome.").max(80, "Nome muito longo."),
   email: z.string().trim().email("Informe um e-mail válido.").max(160),
   senha: z.string().min(8, "A senha precisa ter pelo menos 8 caracteres.").max(72),
+  aceiteTermos: z.boolean().refine((valor) => valor === true, "Aceite os Termos de Uso e a Política de Privacidade."),
 });
 
 export const loginUsuarioSchema = z.object({

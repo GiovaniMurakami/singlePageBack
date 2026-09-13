@@ -16,6 +16,8 @@ type UsuarioItem = {
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
   emailVerificado?: boolean;
+  aceiteTermosEm?: string | null;
+  versaoTermos?: string | null;
   criadoEm: string;
 };
 
@@ -44,6 +46,8 @@ export class UsuarioDynamoRepositorio extends BaseDynamoRepositorio implements U
       stripeCustomerId: usuario.stripeCustomerId,
       stripeSubscriptionId: usuario.stripeSubscriptionId,
       emailVerificado: usuario.emailVerificado,
+      aceiteTermosEm: usuario.aceiteTermosEm ? usuario.aceiteTermosEm.toISOString() : null,
+      versaoTermos: usuario.versaoTermos,
       criadoEm: usuario.criadoEm.toISOString(),
     };
   }
@@ -52,6 +56,8 @@ export class UsuarioDynamoRepositorio extends BaseDynamoRepositorio implements U
     return new Usuario({
       ...item,
       emailVerificado: item.emailVerificado !== false,
+      aceiteTermosEm: item.aceiteTermosEm ? new Date(item.aceiteTermosEm) : null,
+      versaoTermos: item.versaoTermos ?? null,
       criadoEm: new Date(item.criadoEm),
     });
   }
