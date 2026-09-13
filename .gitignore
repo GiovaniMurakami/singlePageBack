@@ -2,9 +2,9 @@ node_modules/
 .serverless/
 build/
 .env
-.env.local
-.env.homolog
-.env.production
+.env.*
+!.env.example
+.DS_Store
 dist/
 *.js.map
 package-lock.json

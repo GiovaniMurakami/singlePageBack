@@ -40,10 +40,11 @@ export const temaPaginaSchema = z.object({
   fundo: z.string().regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, "Cor de fundo inválida."),
   texto: z.string().regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, "Cor de texto inválida."),
   destaque: z.string().regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, "Cor de destaque inválida."),
-  fonte: z.enum(["sans", "serif", "mono"]),
-  alinhamento: z.enum(["esquerda", "centro"]),
-  largura: z.enum(["estreita", "media", "larga"]),
-});
+  fonte: z.enum(["sans", "serif", "mono", "grotesk", "moderna", "editorial", "display", "poster", "script"]),
+  alinhamento: z.enum(["esquerda", "centro", "direita", "justificado"]),
+  orientacao: z.enum(["horizontal", "vertical"]).optional(),
+  largura: z.enum(["estreita", "media", "larga", "completa"]),
+}).passthrough();
 
 export const blocoPaginaSchema = z.object({
   id: uuidCampo("id do bloco"),
@@ -67,6 +68,14 @@ export const atualizarPaginaSchema = z.object({
 
 export const publicarPaginaSchema = z.object({
   publicada: z.boolean(),
+});
+
+export const eventoPaginaSchema = z.object({
+  tipo: z.enum(["visita", "clique", "formulario"]),
+  visitanteId: z.string().trim().max(80).optional(),
+  alvo: z.string().trim().max(400).optional(),
+  origem: z.string().trim().max(200).optional(),
+  hora: z.number().int().min(0).max(23).optional(),
 });
 
 export const criarCheckoutSchema = z.object({

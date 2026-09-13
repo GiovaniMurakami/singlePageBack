@@ -29,9 +29,10 @@ export type TemaPagina = {
   fundo: string;
   texto: string;
   destaque: string;
-  fonte: "sans" | "serif" | "mono";
-  alinhamento: "esquerda" | "centro";
-  largura: "estreita" | "media" | "larga";
+  fonte: "sans" | "serif" | "mono" | "grotesk" | "moderna" | "editorial" | "display" | "poster" | "script";
+  alinhamento: "esquerda" | "centro" | "direita" | "justificado";
+  orientacao?: "horizontal" | "vertical";
+  largura: "estreita" | "media" | "larga" | "completa";
 };
 
 export const TEMA_PADRAO: TemaPagina = {

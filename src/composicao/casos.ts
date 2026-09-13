@@ -12,6 +12,8 @@ import { AtualizarPagina } from "../casosDeUso/pagina/atualizarPagina";
 import { PublicarPagina } from "../casosDeUso/pagina/publicarPagina";
 import { ExcluirPagina } from "../casosDeUso/pagina/excluirPagina";
 import { BuscarPaginaPublica } from "../casosDeUso/pagina/buscarPaginaPublica";
+import { RegistrarEventoPagina } from "../casosDeUso/pagina/registrarEventoPagina";
+import { ObterAnalyticsPagina } from "../casosDeUso/pagina/obterAnalyticsPagina";
 import { ListarPlanos } from "../casosDeUso/assinatura/listarPlanos";
 import { CriarCheckout } from "../casosDeUso/assinatura/criarCheckout";
 import { CriarPortal } from "../casosDeUso/assinatura/criarPortal";
@@ -32,6 +34,8 @@ export function criarCasosDeUso(repos: Repositorios, servicos: Servicos) {
     publicarPagina: PublicarPagina.criar(repos.pagina, repos.usuario),
     excluirPagina: ExcluirPagina.criar(repos.pagina),
     buscarPaginaPublica: BuscarPaginaPublica.criar(repos.pagina, repos.usuario),
+    registrarEventoPagina: RegistrarEventoPagina.criar(repos.pagina, repos.analytics),
+    obterAnalyticsPagina: ObterAnalyticsPagina.criar(repos.pagina, repos.analytics),
     listarPlanos: ListarPlanos.criar(),
     criarCheckout: CriarCheckout.criar(repos.usuario, servicos.stripe),
     criarPortal: CriarPortal.criar(repos.usuario, servicos.stripe),

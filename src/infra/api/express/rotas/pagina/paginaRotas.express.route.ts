@@ -6,10 +6,12 @@ import { AtualizarPagina } from "../../../../../casosDeUso/pagina/atualizarPagin
 import { PublicarPagina } from "../../../../../casosDeUso/pagina/publicarPagina";
 import { ExcluirPagina } from "../../../../../casosDeUso/pagina/excluirPagina";
 import { BuscarPaginaPublica } from "../../../../../casosDeUso/pagina/buscarPaginaPublica";
+import { RegistrarEventoPagina } from "../../../../../casosDeUso/pagina/registrarEventoPagina";
+import { ObterAnalyticsPagina } from "../../../../../casosDeUso/pagina/obterAnalyticsPagina";
 import { HttpMethod, Rotas, handlerErro } from "../rotas";
 import { autenticarJwt } from "../../../../../middlewares/express/autenticarJwt";
 import { leituraAutenticadaRateLimiter, mutationRateLimiter, publicReadRateLimiter } from "../../../../../middlewares/express/rateLimiter";
-import { atualizarPaginaSchema, criarPaginaSchema, publicarPaginaSchema } from "../../../../../helpers/validacao/schemas";
+import { atualizarPaginaSchema, criarPaginaSchema, eventoPaginaSchema, publicarPaginaSchema } from "../../../../../helpers/validacao/schemas";
 import { validarBody } from "../../../../../helpers/validacao/validarBody";
 
 export class CriarPaginaRota implements Rotas {
@@ -109,6 +111,34 @@ export class BuscarPaginaPublicaRota implements Rotas {
   public getHandler() {
     return handlerErro(async (req, res) => {
       res.json(await this.caso.executar({ slug: String(req.params.slug) }));
+    });
+  }
+}
+
+export class RegistrarEventoPaginaRota implements Rotas {
+  private constructor(private readonly caso: RegistrarEventoPagina) {}
+  public static criar(caso: RegistrarEventoPagina) { return new RegistrarEventoPaginaRota(caso); }
+  public getCaminho() { return "/p/:slug/evento"; }
+  public getMetodo() { return HttpMethod.POST; }
+  public getMiddlewares(): RequestHandler[] { return [publicReadRateLimiter]; }
+  public getHandler() {
+    return handlerErro(async (req, res) => {
+      const dados = validarBody(eventoPaginaSchema, req.body, res);
+      if (!dados) return;
+      res.status(202).json(await this.caso.executar({ ...dados, slug: String(req.params.slug) }));
+    });
+  }
+}
+
+export class ObterAnalyticsPaginaRota implements Rotas {
+  private constructor(private readonly caso: ObterAnalyticsPagina) {}
+  public static criar(caso: ObterAnalyticsPagina) { return new ObterAnalyticsPaginaRota(caso); }
+  public getCaminho() { return "/pagina/:paginaId/analytics"; }
+  public getMetodo() { return HttpMethod.GET; }
+  public getMiddlewares(): RequestHandler[] { return [autenticarJwt, leituraAutenticadaRateLimiter]; }
+  public getHandler() {
+    return handlerErro(async (req, res) => {
+      res.json(await this.caso.executar({ paginaId: String(req.params.paginaId), usuarioId: req.usuario!.id }));
     });
   }
 }

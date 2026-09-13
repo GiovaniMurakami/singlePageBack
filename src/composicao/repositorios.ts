@@ -2,6 +2,7 @@ import { UsuarioDynamoRepositorio } from "../infra/dynamodb/repositorios/usuario
 import { PaginaDynamoRepositorio } from "../infra/dynamodb/repositorios/paginaDynamoRepositorio";
 import { RefreshTokenDynamoRepositorio } from "../infra/dynamodb/repositorios/refreshTokenDynamoRepositorio";
 import { TokenBlacklistDynamoRepositorio } from "../infra/dynamodb/repositorios/tokenBlacklistDynamoRepositorio";
+import { AnalyticsDynamoRepositorio } from "../infra/dynamodb/repositorios/analyticsDynamoRepositorio";
 
 export function criarRepositorios() {
   return {
@@ -9,6 +10,7 @@ export function criarRepositorios() {
     pagina: PaginaDynamoRepositorio.criar(),
     refreshToken: RefreshTokenDynamoRepositorio.criar(),
     tokenBlacklist: TokenBlacklistDynamoRepositorio.criar(),
+    analytics: AnalyticsDynamoRepositorio.criar(),
   };
 }
 

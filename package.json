@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon --exec ts-node src/iniciarServidor.ts",
     "lint": "eslint .",
+    "prepare": "husky",
     "build": "node esbuild.config.js",
     "deploy": "npm run deploy:prod",
     "deploy:dev": "npm run build && serverless deploy --stage dev --region us-east-1",
@@ -54,12 +55,17 @@
     "esbuild": "^0.24.0",
     "eslint": "^9.12.0",
     "globals": "^15.11.0",
+    "husky": "^9.1.7",
     "jest": "^30.3.0",
+    "lint-staged": "^17.5.1",
     "nodemon": "^3.1.7",
     "serverless": "^4.4.6",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.10.0"
+  },
+  "lint-staged": {
+    "*.ts": "eslint"
   }
 }

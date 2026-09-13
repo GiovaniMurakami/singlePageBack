@@ -14,7 +14,9 @@ import {
   CriarPaginaRota,
   ExcluirPaginaRota,
   ListarPaginasRota,
+  ObterAnalyticsPaginaRota,
   PublicarPaginaRota,
+  RegistrarEventoPaginaRota,
 } from "../infra/api/express/rotas/pagina/paginaRotas.express.route";
 import {
   CriarCheckoutRota,
@@ -39,6 +41,8 @@ export function criarRotas(casos: CasosDeUso) {
     PublicarPaginaRota.criar(casos.publicarPagina),
     ExcluirPaginaRota.criar(casos.excluirPagina),
     BuscarPaginaPublicaRota.criar(casos.buscarPaginaPublica),
+    RegistrarEventoPaginaRota.criar(casos.registrarEventoPagina),
+    ObterAnalyticsPaginaRota.criar(casos.obterAnalyticsPagina),
     ListarPlanosRota.criar(casos.listarPlanos),
     CriarCheckoutRota.criar(casos.criarCheckout),
     CriarPortalRota.criar(casos.criarPortal),
