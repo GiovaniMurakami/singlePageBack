@@ -42,7 +42,7 @@ export class AtualizarPagina implements CasoDeUso<AtualizarPaginaInputDto, Retur
     } catch (error) {
       if (error instanceof SlugPaginaJaExisteErro) {
         throw ErroPersonalizado.criar({
-          mensagem: "Este endereço já está em uso. Escolha outro slug.",
+          mensagem: "Este endereço já está em uso. Escolha outro nome.",
           status: StatusErro.erroConflito,
         });
       }

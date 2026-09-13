@@ -56,7 +56,7 @@ export class CriarPagina implements CasoDeUso<CriarPaginaInputDto, ReturnType<ty
     } catch (error) {
       if (error instanceof SlugPaginaJaExisteErro) {
         throw ErroPersonalizado.criar({
-          mensagem: "Este endereço já está em uso. Escolha outro slug.",
+          mensagem: "Este endereço já está em uso. Escolha outro nome.",
           status: StatusErro.erroConflito,
         });
       }
