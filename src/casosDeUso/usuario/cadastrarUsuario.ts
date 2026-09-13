@@ -2,10 +2,12 @@ import bcrypt from "bcryptjs";
 import { Usuario } from "../../dominio/entidade/usuario";
 import { EmailUsuarioJaExisteErro, UsuarioGateway } from "../../dominio/gateway/usuarioGateway";
 import { RefreshTokenGateway } from "../../dominio/gateway/refreshTokenGateway";
+import { EmailGateway } from "../../dominio/gateway/emailGateway";
 import { CasoDeUso } from "../casoDeUso";
 import { ErroPersonalizado } from "../../helpers/error/ErroPersonalizado";
 import { StatusErro } from "../../helpers/error/statusErro";
 import { emitirSessao } from "./emitirSessao";
+import { dispararVerificacaoEmail } from "./verificarEmail";
 
 export type CadastrarUsuarioInputDto = {
   nome: string;
@@ -16,11 +18,12 @@ export type CadastrarUsuarioInputDto = {
 export class CadastrarUsuario implements CasoDeUso<CadastrarUsuarioInputDto, Awaited<ReturnType<typeof emitirSessao>>> {
   private constructor(
     private readonly usuarioGateway: UsuarioGateway,
-    private readonly refreshTokenGateway: RefreshTokenGateway
+    private readonly refreshTokenGateway: RefreshTokenGateway,
+    private readonly email: EmailGateway
   ) {}
 
-  public static criar(usuarioGateway: UsuarioGateway, refreshTokenGateway: RefreshTokenGateway) {
-    return new CadastrarUsuario(usuarioGateway, refreshTokenGateway);
+  public static criar(usuarioGateway: UsuarioGateway, refreshTokenGateway: RefreshTokenGateway, email: EmailGateway) {
+    return new CadastrarUsuario(usuarioGateway, refreshTokenGateway, email);
   }
 
   public async executar(input: CadastrarUsuarioInputDto) {
@@ -51,6 +54,9 @@ export class CadastrarUsuario implements CasoDeUso<CadastrarUsuarioInputDto, Awa
       throw error;
     }
 
-    return emitirSessao(usuario, this.refreshTokenGateway);
+    return emitirSessao(usuario, this.refreshTokenGateway).then(async (sessao) => {
+      await dispararVerificacaoEmail(usuario, this.email);
+      return sessao;
+    });
   }
 }

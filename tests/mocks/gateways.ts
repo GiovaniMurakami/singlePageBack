@@ -4,6 +4,7 @@ import { RefreshTokenGateway } from "../../src/dominio/gateway/refreshTokenGatew
 import { TokenBlacklistGateway } from "../../src/dominio/gateway/tokenBlacklistGateway";
 import { ImagemGateway } from "../../src/dominio/gateway/imagemGateway";
 import { StripeGateway } from "../../src/dominio/gateway/stripeGateway";
+import { EmailGateway } from "../../src/dominio/gateway/emailGateway";
 
 export function criarMockUsuarioGateway(overrides: Partial<UsuarioGateway> = {}): UsuarioGateway {
   return {
@@ -50,6 +51,13 @@ export function criarMockImagemGateway(overrides: Partial<ImagemGateway> = {}): 
   return {
     gerarUrlUpload: jest.fn().mockResolvedValue({ uploadUrl: "https://upload", urlPublica: "https://cdn/img" }),
     excluirPorUrl: jest.fn(),
+    ...overrides,
+  };
+}
+
+export function criarMockEmailGateway(overrides: Partial<EmailGateway> = {}): EmailGateway {
+  return {
+    enviar: jest.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }

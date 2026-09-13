@@ -19,28 +19,39 @@ import { CriarCheckout } from "../casosDeUso/assinatura/criarCheckout";
 import { CriarPortal } from "../casosDeUso/assinatura/criarPortal";
 import { ProcessarWebhook } from "../casosDeUso/assinatura/processarWebhook";
 import { GerarUrlUploadImagem } from "../casosDeUso/imagem/gerarUrlUploadImagem";
+import { EnviarPedidoAjuda } from "../casosDeUso/suporte/enviarPedidoAjuda";
+import { VerificarEmail, ReenviarVerificacaoEmail } from "../casosDeUso/usuario/verificarEmail";
+import { PedirRedefinicaoSenha, RedefinirSenha, AlterarSenha } from "../casosDeUso/usuario/senha";
+import { EnviarFormularioPagina } from "../casosDeUso/pagina/enviarFormularioPagina";
 
 export function criarCasosDeUso(repos: Repositorios, servicos: Servicos) {
   return {
-    cadastrarUsuario: CadastrarUsuario.criar(repos.usuario, repos.refreshToken),
+    cadastrarUsuario: CadastrarUsuario.criar(repos.usuario, repos.refreshToken, servicos.email),
     loginUsuario: LoginUsuario.criar(repos.usuario, repos.refreshToken),
     refreshToken: RefreshToken.criar(repos.usuario, repos.refreshToken),
     logoutUsuario: LogoutUsuario.criar(repos.refreshToken, repos.tokenBlacklist),
     buscarPerfil: BuscarPerfil.criar(repos.usuario),
+    verificarEmail: VerificarEmail.criar(repos.usuario),
+    reenviarVerificacaoEmail: ReenviarVerificacaoEmail.criar(repos.usuario, servicos.email),
+    pedirRedefinicaoSenha: PedirRedefinicaoSenha.criar(repos.usuario, servicos.email),
+    redefinirSenha: RedefinirSenha.criar(repos.usuario, servicos.email),
+    alterarSenha: AlterarSenha.criar(repos.usuario, servicos.email),
     criarPagina: CriarPagina.criar(repos.pagina, repos.usuario),
     listarPaginas: ListarPaginas.criar(repos.pagina),
     buscarPagina: BuscarPagina.criar(repos.pagina),
     atualizarPagina: AtualizarPagina.criar(repos.pagina),
-    publicarPagina: PublicarPagina.criar(repos.pagina, repos.usuario),
+    publicarPagina: PublicarPagina.criar(repos.pagina, repos.usuario, servicos.email),
     excluirPagina: ExcluirPagina.criar(repos.pagina),
     buscarPaginaPublica: BuscarPaginaPublica.criar(repos.pagina, repos.usuario),
+    enviarFormularioPagina: EnviarFormularioPagina.criar(repos.pagina, repos.usuario, servicos.email),
     registrarEventoPagina: RegistrarEventoPagina.criar(repos.pagina, repos.analytics),
     obterAnalyticsPagina: ObterAnalyticsPagina.criar(repos.pagina, repos.analytics),
     listarPlanos: ListarPlanos.criar(),
     criarCheckout: CriarCheckout.criar(repos.usuario, servicos.stripe),
     criarPortal: CriarPortal.criar(repos.usuario, servicos.stripe),
-    processarWebhook: ProcessarWebhook.criar(repos.usuario, servicos.stripe),
+    processarWebhook: ProcessarWebhook.criar(repos.usuario, servicos.stripe, servicos.email),
     gerarUrlUploadImagem: GerarUrlUploadImagem.criar(servicos.imagem),
+    enviarPedidoAjuda: EnviarPedidoAjuda.criar(servicos.email),
   };
 }
 

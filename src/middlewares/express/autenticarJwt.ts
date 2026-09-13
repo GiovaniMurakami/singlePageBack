@@ -18,7 +18,7 @@ export const autenticarJwt = async (
   }
 
   const payload = verifyToken(token);
-  if (!payload) {
+  if (!payload || (payload.purpose && payload.purpose !== "access")) {
     res.status(401).json({ mensagem: "Token inválido ou expirado." });
     return;
   }

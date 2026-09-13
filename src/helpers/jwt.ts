@@ -6,6 +6,7 @@ export type JwtPayload = {
   email: string;
   nome: string;
   role: string;
+  purpose?: "access" | "verify" | "reset";
 };
 
 let cachedPrivateKey: string | undefined;

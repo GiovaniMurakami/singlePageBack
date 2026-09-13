@@ -22,6 +22,8 @@ provider:
     STRIPE_WEBHOOK_SECRET: ${env:STRIPE_WEBHOOK_SECRET, ''}
     STRIPE_PRICE_PRO: ${env:STRIPE_PRICE_PRO, ''}
     STRIPE_PRICE_ULTRA: ${env:STRIPE_PRICE_ULTRA, ''}
+    SES_FROM: ${env:SES_FROM, 'Single <noreply@singlepage.com.br>'}
+    EMAIL_SUPORTE: ${env:EMAIL_SUPORTE, 'giovani.murakami@outlook.com'}
   iam:
     role:
       statements:
@@ -37,6 +39,10 @@ provider:
             - s3:DeleteObject
           Resource:
             - arn:aws:s3:::${env:AWS_S3_BUCKET, 'singlepage-bucket-images'}/*
+        - Effect: Allow
+          Action:
+            - ses:SendEmail
+          Resource: "*"
         - Effect: Allow
           Action:
             - dynamodb:GetItem
@@ -158,7 +164,7 @@ functions:
           method: any
           cors:
             origins: *corsOrigins
-            methods: [OPTIONS, GET]
+            methods: [OPTIONS, GET, POST]
             headers: [Content-Type, Authorization]
             allowCredentials: true
       - http:
@@ -191,5 +197,13 @@ functions:
           cors:
             origins: *corsOrigins
             methods: [OPTIONS, GET, POST]
+            headers: [Content-Type, Authorization]
+            allowCredentials: true
+      - http:
+          path: /suporte
+          method: any
+          cors:
+            origins: *corsOrigins
+            methods: [OPTIONS, POST]
             headers: [Content-Type, Authorization]
             allowCredentials: true

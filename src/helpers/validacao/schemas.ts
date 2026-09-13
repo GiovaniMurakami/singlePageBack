@@ -86,3 +86,42 @@ export const uploadImagemSchema = z.object({
   contentType: z.enum(["image/jpeg", "image/png", "image/gif", "image/webp"]),
   tamanhoBytes: z.number().int().positive(),
 });
+
+export const pedidoAjudaSchema = z.object({
+  nome: z.string().trim().min(2).max(80),
+  email: z.string().trim().email(),
+  assunto: z.string().trim().min(2).max(80),
+  pagina: z.string().trim().max(80).optional(),
+  esperado: z.string().trim().max(2000).optional(),
+  aconteceu: z.string().trim().max(2000).optional(),
+  mensagem: z.string().trim().max(4000).optional(),
+  navegador: z.string().trim().max(400).optional(),
+});
+
+export const tokenEmailSchema = z.object({
+  token: z.string().min(20),
+});
+
+export const pedirRedefinicaoSenhaSchema = z.object({
+  email: z.string().trim().email(),
+});
+
+export const redefinirSenhaSchema = z.object({
+  token: z.string().min(20),
+  senha: z.string().min(8).max(72),
+});
+
+export const alterarSenhaSchema = z.object({
+  senhaAtual: z.string().min(1),
+  senhaNova: z.string().min(8).max(72),
+});
+
+export const formularioPaginaSchema = z.object({
+  assunto: z.string().trim().max(160).optional(),
+  campos: z.array(z.object({
+    id: z.string().trim().max(80).optional(),
+    rotulo: z.string().trim().min(1).max(80),
+    tipo: z.string().trim().max(40).optional(),
+    valor: z.unknown().optional(),
+  })).min(1).max(30),
+});

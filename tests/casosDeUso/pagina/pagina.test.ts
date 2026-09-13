@@ -8,7 +8,7 @@ import { AtualizarPagina } from "../../../src/casosDeUso/pagina/atualizarPagina"
 import { PublicarPagina } from "../../../src/casosDeUso/pagina/publicarPagina";
 import { ExcluirPagina } from "../../../src/casosDeUso/pagina/excluirPagina";
 import { BuscarPaginaPublica } from "../../../src/casosDeUso/pagina/buscarPaginaPublica";
-import { criarMockPaginaGateway, criarMockUsuarioGateway } from "../../mocks/gateways";
+import { criarMockPaginaGateway, criarMockUsuarioGateway, criarMockEmailGateway } from "../../mocks/gateways";
 
 function usuarioFree() {
   return Usuario.criar({ nome: "Ana", email: "ana@example.com", senha: "x" });
@@ -109,7 +109,8 @@ describe("pagina", () => {
     await expect(
       PublicarPagina.criar(
         criarMockPaginaGateway({ buscarPorId: jest.fn().mockResolvedValue(pagina) }),
-        criarMockUsuarioGateway({ buscarPorId: jest.fn().mockResolvedValue(usuarioFree()) })
+        criarMockUsuarioGateway({ buscarPorId: jest.fn().mockResolvedValue(usuarioFree()) }),
+        criarMockEmailGateway()
       ).executar({ paginaId: pagina.id, usuarioId: "u1", publicada: true })
     ).rejects.toMatchObject({ status: 400 });
   });
@@ -119,7 +120,8 @@ describe("pagina", () => {
     await expect(
       PublicarPagina.criar(
         criarMockPaginaGateway({ buscarPorId: jest.fn().mockResolvedValue(pagina) }),
-        criarMockUsuarioGateway()
+        criarMockUsuarioGateway(),
+        criarMockEmailGateway()
       ).executar({ paginaId: pagina.id, usuarioId: "u1", publicada: true })
     ).rejects.toMatchObject({ status: 404 });
   });
@@ -133,13 +135,15 @@ describe("pagina", () => {
     });
     const publicada = await PublicarPagina.criar(
       gateway,
-      criarMockUsuarioGateway({ buscarPorId: jest.fn().mockResolvedValue(usuario) })
+      criarMockUsuarioGateway({ buscarPorId: jest.fn().mockResolvedValue(usuario) }),
+      criarMockEmailGateway()
     ).executar({ paginaId: pagina.id, usuarioId: usuario.id, publicada: true });
     expect(publicada.publicada).toBe(true);
 
     const rascunho = await PublicarPagina.criar(
       gateway,
-      criarMockUsuarioGateway({ buscarPorId: jest.fn().mockResolvedValue(usuario) })
+      criarMockUsuarioGateway({ buscarPorId: jest.fn().mockResolvedValue(usuario) }),
+      criarMockEmailGateway()
     ).executar({ paginaId: pagina.id, usuarioId: usuario.id, publicada: false });
     expect(rascunho.publicada).toBe(false);
   });

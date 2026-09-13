@@ -15,6 +15,7 @@ type UsuarioItem = {
   statusAssinatura: StatusAssinatura;
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
+  emailVerificado?: boolean;
   criadoEm: string;
 };
 
@@ -42,6 +43,7 @@ export class UsuarioDynamoRepositorio extends BaseDynamoRepositorio implements U
       statusAssinatura: usuario.statusAssinatura,
       stripeCustomerId: usuario.stripeCustomerId,
       stripeSubscriptionId: usuario.stripeSubscriptionId,
+      emailVerificado: usuario.emailVerificado,
       criadoEm: usuario.criadoEm.toISOString(),
     };
   }
@@ -49,6 +51,7 @@ export class UsuarioDynamoRepositorio extends BaseDynamoRepositorio implements U
   private itemParaUsuario(item: UsuarioItem): Usuario {
     return new Usuario({
       ...item,
+      emailVerificado: item.emailVerificado !== false,
       criadoEm: new Date(item.criadoEm),
     });
   }

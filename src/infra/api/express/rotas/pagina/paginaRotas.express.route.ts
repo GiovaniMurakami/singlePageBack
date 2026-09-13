@@ -8,10 +8,11 @@ import { ExcluirPagina } from "../../../../../casosDeUso/pagina/excluirPagina";
 import { BuscarPaginaPublica } from "../../../../../casosDeUso/pagina/buscarPaginaPublica";
 import { RegistrarEventoPagina } from "../../../../../casosDeUso/pagina/registrarEventoPagina";
 import { ObterAnalyticsPagina } from "../../../../../casosDeUso/pagina/obterAnalyticsPagina";
+import { EnviarFormularioPagina } from "../../../../../casosDeUso/pagina/enviarFormularioPagina";
 import { HttpMethod, Rotas, handlerErro } from "../rotas";
 import { autenticarJwt } from "../../../../../middlewares/express/autenticarJwt";
 import { leituraAutenticadaRateLimiter, mutationRateLimiter, publicReadRateLimiter } from "../../../../../middlewares/express/rateLimiter";
-import { atualizarPaginaSchema, criarPaginaSchema, eventoPaginaSchema, publicarPaginaSchema } from "../../../../../helpers/validacao/schemas";
+import { atualizarPaginaSchema, criarPaginaSchema, eventoPaginaSchema, publicarPaginaSchema, formularioPaginaSchema } from "../../../../../helpers/validacao/schemas";
 import { validarBody } from "../../../../../helpers/validacao/validarBody";
 
 export class CriarPaginaRota implements Rotas {
@@ -139,6 +140,21 @@ export class ObterAnalyticsPaginaRota implements Rotas {
   public getHandler() {
     return handlerErro(async (req, res) => {
       res.json(await this.caso.executar({ paginaId: String(req.params.paginaId), usuarioId: req.usuario!.id }));
+    });
+  }
+}
+
+export class EnviarFormularioPaginaRota implements Rotas {
+  private constructor(private readonly caso: EnviarFormularioPagina) {}
+  public static criar(caso: EnviarFormularioPagina) { return new EnviarFormularioPaginaRota(caso); }
+  public getCaminho() { return "/p/:slug/formulario"; }
+  public getMetodo() { return HttpMethod.POST; }
+  public getMiddlewares(): RequestHandler[] { return [publicReadRateLimiter]; }
+  public getHandler() {
+    return handlerErro(async (req, res) => {
+      const dados = validarBody(formularioPaginaSchema, req.body, res);
+      if (!dados) return;
+      res.json(await this.caso.executar({ ...dados, slug: String(req.params.slug) }));
     });
   }
 }

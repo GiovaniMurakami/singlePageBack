@@ -3,7 +3,7 @@ import { ListarPlanos } from "../../../src/casosDeUso/assinatura/listarPlanos";
 import { CriarCheckout } from "../../../src/casosDeUso/assinatura/criarCheckout";
 import { CriarPortal } from "../../../src/casosDeUso/assinatura/criarPortal";
 import { ProcessarWebhook } from "../../../src/casosDeUso/assinatura/processarWebhook";
-import { criarMockStripeGateway, criarMockUsuarioGateway } from "../../mocks/gateways";
+import { criarMockStripeGateway, criarMockUsuarioGateway, criarMockEmailGateway } from "../../mocks/gateways";
 
 describe("assinatura", () => {
   it("lista planos publicos", async () => {
@@ -67,7 +67,7 @@ describe("assinatura", () => {
         status: "ativa",
       }),
     });
-    const resultado = await ProcessarWebhook.criar(usuarioGateway, stripe).executar({
+    const resultado = await ProcessarWebhook.criar(usuarioGateway, stripe, criarMockEmailGateway()).executar({
       payload: Buffer.from("{}"),
       assinatura: "sig",
     });
@@ -80,7 +80,8 @@ describe("assinatura", () => {
     await expect(
       ProcessarWebhook.criar(
         criarMockUsuarioGateway(),
-        criarMockStripeGateway({ construirEvento: jest.fn(() => { throw new Error("bad"); }) })
+        criarMockStripeGateway({ construirEvento: jest.fn(() => { throw new Error("bad"); }) }),
+        criarMockEmailGateway()
       ).executar({ payload: Buffer.from("{}"), assinatura: "x" })
     ).rejects.toMatchObject({ status: 401 });
   });
@@ -88,7 +89,8 @@ describe("assinatura", () => {
   it("evento ignorado ou sem usuario nao falha", async () => {
     const okIgnorado = await ProcessarWebhook.criar(
       criarMockUsuarioGateway(),
-      criarMockStripeGateway()
+      criarMockStripeGateway(),
+      criarMockEmailGateway()
     ).executar({ payload: Buffer.from("{}"), assinatura: "s" });
     expect(okIgnorado.ok).toBe(true);
 
@@ -102,7 +104,8 @@ describe("assinatura", () => {
           plano: "pro",
           status: "ativa",
         }),
-      })
+      }),
+      criarMockEmailGateway()
     ).executar({ payload: Buffer.from("{}"), assinatura: "s" });
     expect(okSemUser.ok).toBe(true);
   });

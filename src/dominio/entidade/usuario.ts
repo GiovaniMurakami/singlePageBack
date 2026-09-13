@@ -14,6 +14,7 @@ export interface UsuarioProps {
   statusAssinatura?: StatusAssinatura;
   stripeCustomerId?: string | null;
   stripeSubscriptionId?: string | null;
+  emailVerificado?: boolean;
   criadoEm?: Date;
 }
 
@@ -27,6 +28,7 @@ export class Usuario {
   public statusAssinatura: StatusAssinatura;
   public stripeCustomerId: string | null;
   public stripeSubscriptionId: string | null;
+  public emailVerificado: boolean;
   public criadoEm: Date;
 
   constructor({
@@ -39,6 +41,7 @@ export class Usuario {
     statusAssinatura,
     stripeCustomerId,
     stripeSubscriptionId,
+    emailVerificado,
     criadoEm,
   }: UsuarioProps) {
     this.id = id;
@@ -50,6 +53,7 @@ export class Usuario {
     this.statusAssinatura = statusAssinatura || "nenhuma";
     this.stripeCustomerId = stripeCustomerId ?? null;
     this.stripeSubscriptionId = stripeSubscriptionId ?? null;
+    this.emailVerificado = emailVerificado ?? true;
     this.criadoEm = criadoEm || new Date();
   }
 
@@ -66,6 +70,7 @@ export class Usuario {
       role: "user",
       plano: "free",
       statusAssinatura: "nenhuma",
+      emailVerificado: false,
       criadoEm: new Date(),
     });
   }

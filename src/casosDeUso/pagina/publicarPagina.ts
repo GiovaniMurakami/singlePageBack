@@ -1,10 +1,14 @@
 import { PaginaGateway } from "../../dominio/gateway/paginaGateway";
 import { UsuarioGateway } from "../../dominio/gateway/usuarioGateway";
+import { EmailGateway } from "../../dominio/gateway/emailGateway";
 import { CasoDeUso } from "../casoDeUso";
 import { ErroPersonalizado } from "../../helpers/error/ErroPersonalizado";
 import { StatusErro } from "../../helpers/error/statusErro";
 import { obterPlano } from "../../helpers/planos";
 import { serializarPagina } from "./serializarPagina";
+import { emailPaginaPublicada } from "../../helpers/emailModelos";
+import { enviarEmailComSeguranca } from "../../infra/services/sesServico";
+import { getFrontendUrl } from "../../helpers/env";
 
 export class PublicarPagina implements CasoDeUso<
   { paginaId: string; usuarioId: string; publicada: boolean },
@@ -12,11 +16,12 @@ export class PublicarPagina implements CasoDeUso<
 > {
   private constructor(
     private readonly paginaGateway: PaginaGateway,
-    private readonly usuarioGateway: UsuarioGateway
+    private readonly usuarioGateway: UsuarioGateway,
+    private readonly email: EmailGateway
   ) {}
 
-  public static criar(paginaGateway: PaginaGateway, usuarioGateway: UsuarioGateway) {
-    return new PublicarPagina(paginaGateway, usuarioGateway);
+  public static criar(paginaGateway: PaginaGateway, usuarioGateway: UsuarioGateway, email: EmailGateway) {
+    return new PublicarPagina(paginaGateway, usuarioGateway, email);
   }
 
   public async executar(input: { paginaId: string; usuarioId: string; publicada: boolean }) {
@@ -54,10 +59,24 @@ export class PublicarPagina implements CasoDeUso<
       }
     }
 
+    const acabouDePublicar = input.publicada && !pagina.publicada;
     pagina.publicada = input.publicada;
     pagina.publicadoEm = input.publicada ? new Date() : pagina.publicadoEm;
     pagina.atualizadoEm = new Date();
     await this.paginaGateway.atualizar(pagina, pagina.slug);
+    if (acabouDePublicar) {
+      const dono = await this.usuarioGateway.buscarPorId(input.usuarioId);
+      if (dono) {
+        const url = `${getFrontendUrl()}/${pagina.slug}`;
+        const modelo = emailPaginaPublicada(dono.nome, pagina.titulo, url);
+        await enviarEmailComSeguranca(this.email, {
+          para: dono.email,
+          assunto: modelo.assunto,
+          texto: modelo.texto,
+          html: modelo.html,
+        });
+      }
+    }
     return serializarPagina(pagina);
   }
 }

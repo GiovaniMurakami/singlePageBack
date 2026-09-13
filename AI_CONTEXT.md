@@ -35,6 +35,9 @@ GET  /p/:slug
 GET  /assinatura/planos
 POST /assinatura/checkout, /portal, /webhook
 POST /imagem/upload-url
+POST /suporte
+POST /usuario/verificar-email, /reenviar-verificacao, /esqueci-senha, /redefinir-senha, /alterar-senha
+POST /p/:slug/formulario
 GET  /health
 ```
 
@@ -71,6 +74,11 @@ Tabelas: `single-page-dev-data` / `single-page-prod-data`.
 - `npm run stripe:setup` reusa produto existente; não cria produto duplicado.
 - Live key só em `.env.production` (localmente pode existir symlink `.env.prod`). **Nunca commitar** `.env.production` nem dump de secret.
 - Homolog não deve usar chave live. `stripe:setup` carrega `.env.production` / `.env.prod` / `.env`.
+
+## E-mail (SES)
+
+From: `Single <noreply@singlepage.com.br>` (identidade do domínio no SES). Ajuda vai para `EMAIL_SUPORTE` (`giovani.murakami@outlook.com`).
+Contas novas recebem link de verificação. Troca/reset de senha, plano alterado, página publicada e envio de formulário também saem por SES.
 
 ## Decisões desta sessão
 

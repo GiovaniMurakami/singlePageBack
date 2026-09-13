@@ -11,6 +11,7 @@ import {
   criarMockRefreshTokenGateway,
   criarMockTokenBlacklistGateway,
   criarMockUsuarioGateway,
+  criarMockEmailGateway,
 } from "../../mocks/gateways";
 
 describe("auth", () => {
@@ -22,7 +23,7 @@ describe("auth", () => {
   it("cadastra usuario e devolve sessao", async () => {
     const usuarioGateway = criarMockUsuarioGateway();
     const refresh = criarMockRefreshTokenGateway();
-    const caso = CadastrarUsuario.criar(usuarioGateway, refresh);
+    const caso = CadastrarUsuario.criar(usuarioGateway, refresh, criarMockEmailGateway());
 
     const resultado = await caso.executar({
       nome: "Ana",
@@ -41,7 +42,7 @@ describe("auth", () => {
       buscarPorEmail: jest.fn().mockResolvedValue(Usuario.criar({ nome: "A", email: "a@a.com", senha: "x" })),
     });
     await expect(
-      CadastrarUsuario.criar(usuarioGateway, criarMockRefreshTokenGateway()).executar({
+      CadastrarUsuario.criar(usuarioGateway, criarMockRefreshTokenGateway(), criarMockEmailGateway()).executar({
         nome: "Ana",
         email: "a@a.com",
         senha: "senha1234",
@@ -54,7 +55,7 @@ describe("auth", () => {
       salvar: jest.fn().mockRejectedValue(new EmailUsuarioJaExisteErro()),
     });
     await expect(
-      CadastrarUsuario.criar(usuarioGateway, criarMockRefreshTokenGateway()).executar({
+      CadastrarUsuario.criar(usuarioGateway, criarMockRefreshTokenGateway(), criarMockEmailGateway()).executar({
         nome: "Ana",
         email: "ana@example.com",
         senha: "senha1234",
