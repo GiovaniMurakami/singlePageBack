@@ -7,14 +7,16 @@ const PLANOS = [
   {
     env: "STRIPE_PRICE_PRO",
     nome: "Single Pro",
-    descricao: "Até 10 páginas, sem marca Single.",
-    valorCentavos: 2900,
+    descricao: "Até 10 páginas no domínio singlepage.com.br, sem marca Single. Cobrança mensal.",
+    valorCentavos: 990,
+    interval: "month" as const,
   },
   {
     env: "STRIPE_PRICE_ULTRA",
     nome: "Single Ultra",
-    descricao: "Até 50 páginas e domínio próprio.",
-    valorCentavos: 7900,
+    descricao: "Até 50 páginas e domínio personalizável. Cobrança anual.",
+    valorCentavos: 4990,
+    interval: "year" as const,
   },
 ] as const;
 
@@ -59,14 +61,15 @@ async function main() {
       product: produto.id,
       unit_amount: plano.valorCentavos,
       currency: "brl",
-      recurring: { interval: "month" },
+      recurring: { interval: plano.interval },
     });
     gravados[plano.env] = preco.id;
-    console.log(`${plano.nome}: produto ${produto.id} · preço ${preco.id}`);
+    console.log(`${plano.nome}: produto ${produto.id} · preço ${preco.id} (${plano.interval})`);
   }
 
   atualizarEnv(gravados);
-  console.log("IDs gravados no .env. Próximo passo: webhook apontando para /assinatura/webhook.");
+  console.log("IDs gravados no .env. Atualize também .env.homolog / .env.production e faça redeploy.");
+  console.log("Próximo passo: webhook apontando para /assinatura/webhook.");
 }
 
 main().catch((error) => {
