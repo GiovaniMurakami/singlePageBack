@@ -52,7 +52,7 @@ export const PLANOS: Record<CodigoPlano, DefinicaoPlano> = {
     descricao: "Até 50 páginas, domínio personalizável e prioridade no suporte.",
     precoCentavos: 4990,
     precoMensalCentavos: 4990,
-    periodo: "ano",
+    periodo: "mes",
     moeda: "brl",
     paginasMaximas: 50,
     removeMarca: true,
@@ -74,8 +74,7 @@ export function planoAtivoDeAssinatura(
   plano: string | undefined,
   statusAssinatura: string | undefined
 ): CodigoPlano {
-  if ((statusAssinatura === "ativa" || statusAssinatura === "trial") && (plano === "pro" || plano === "ultra")) {
-    return plano;
-  }
-  return "free";
+  if (plano !== "pro" && plano !== "ultra") return "free";
+  if (statusAssinatura === "cancelada") return "free";
+  return plano;
 }

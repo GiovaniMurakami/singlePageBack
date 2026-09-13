@@ -40,6 +40,7 @@ describe("helpers e entidades", () => {
     expect(obterPlano("pro").paginasMaximas).toBe(10);
     expect(obterPlano("outro").codigo).toBe("free");
     expect(planoAtivoDeAssinatura("pro", "ativa")).toBe("pro");
+    expect(planoAtivoDeAssinatura("pro", "nenhuma")).toBe("pro");
     expect(planoAtivoDeAssinatura("pro", "cancelada")).toBe("free");
     expect(listarPlanosPublicos()).toHaveLength(3);
   });
