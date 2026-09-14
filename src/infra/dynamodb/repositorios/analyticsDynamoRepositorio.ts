@@ -1,5 +1,11 @@
 import { QueryCommand } from "@aws-sdk/client-dynamodb";
-import { AnalyticsGateway, DiaAnalytics, EventoAnalytics, TotaisAnalytics } from "../../../dominio/gateway/analyticsGateway";
+import {
+  AnalyticsGateway,
+  DiaAnalytics,
+  EventoAnalytics,
+  RespostaFormulario,
+  TotaisAnalytics,
+} from "../../../dominio/gateway/analyticsGateway";
 import { BaseDynamoRepositorio } from "./baseDynamoRepositorio";
 
 const TOTAIS_VAZIO = (): TotaisAnalytics => ({
@@ -77,21 +83,58 @@ export class AnalyticsDynamoRepositorio extends BaseDynamoRepositorio implements
     ]);
   }
 
+  public async guardarResposta(
+    paginaId: string,
+    resposta: { assunto?: string; campos: { rotulo: string; valor: string }[] }
+  ): Promise<void> {
+    const agora = new Date();
+    const id = `${agora.toISOString()}#${Math.random().toString(36).slice(2, 8)}`;
+    const payload: RespostaFormulario = {
+      id,
+      recebidoEm: agora.toISOString(),
+      assunto: resposta.assunto,
+      campos: resposta.campos,
+    };
+    await this.transactWrite([
+      {
+        Put: {
+          TableName: this.tabela,
+          Item: this.itemJson(this.pk(paginaId), `FORM#${id}`, payload, { entity: "PAGE_FORM" }),
+        },
+      },
+    ]);
+    await this.registrar(paginaId, { tipo: "formulario" });
+  }
+
   public async obter(paginaId: string, dias = 14) {
     const pk = this.pk(paginaId);
     const totais = (await this.getJson<TotaisAnalytics>(pk, "STATS")) || TOTAIS_VAZIO();
     this.assertTabelaConfigurada();
-    const resposta = await this.cliente.send(new QueryCommand({
-      TableName: this.tabela,
-      KeyConditionExpression: "pk = :pk AND begins_with(sk, :sk)",
-      ExpressionAttributeValues: {
-        ":pk": { S: pk },
-        ":sk": { S: "STATS#" },
-      },
-      ConsistentRead: true,
-    }));
 
-    const serie = (resposta.Items || [])
+    const [serieResposta, formResposta] = await Promise.all([
+      this.cliente.send(new QueryCommand({
+        TableName: this.tabela,
+        KeyConditionExpression: "pk = :pk AND begins_with(sk, :sk)",
+        ExpressionAttributeValues: {
+          ":pk": { S: pk },
+          ":sk": { S: "STATS#" },
+        },
+        ConsistentRead: true,
+      })),
+      this.cliente.send(new QueryCommand({
+        TableName: this.tabela,
+        KeyConditionExpression: "pk = :pk AND begins_with(sk, :sk)",
+        ExpressionAttributeValues: {
+          ":pk": { S: pk },
+          ":sk": { S: "FORM#" },
+        },
+        ConsistentRead: true,
+        ScanIndexForward: false,
+        Limit: 40,
+      })),
+    ]);
+
+    const serie = (serieResposta.Items || [])
       .map((item) => {
         if (!item.payload?.S) return null;
         return JSON.parse(item.payload.S) as DiaAnalytics;
@@ -101,6 +144,14 @@ export class AnalyticsDynamoRepositorio extends BaseDynamoRepositorio implements
       .slice(-dias)
       .map(({ vistos: _vistos, ...dia }) => dia);
 
-    return { totais, serie };
+    const respostas = (formResposta.Items || [])
+      .map((item) => {
+        if (!item.payload?.S) return null;
+        return JSON.parse(item.payload.S) as RespostaFormulario;
+      })
+      .filter((item): item is RespostaFormulario => Boolean(item?.id))
+      .sort((a, b) => b.recebidoEm.localeCompare(a.recebidoEm));
+
+    return { totais, serie, respostas };
   }
 }

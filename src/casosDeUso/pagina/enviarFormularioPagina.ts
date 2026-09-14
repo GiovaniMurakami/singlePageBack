@@ -1,6 +1,7 @@
 import { PaginaGateway } from "../../dominio/gateway/paginaGateway";
 import { UsuarioGateway } from "../../dominio/gateway/usuarioGateway";
 import { EmailGateway } from "../../dominio/gateway/emailGateway";
+import { AnalyticsGateway } from "../../dominio/gateway/analyticsGateway";
 import { CasoDeUso } from "../casoDeUso";
 import { ErroPersonalizado } from "../../helpers/error/ErroPersonalizado";
 import { StatusErro } from "../../helpers/error/statusErro";
@@ -32,11 +33,17 @@ export class EnviarFormularioPagina implements CasoDeUso<
   private constructor(
     private readonly paginaGateway: PaginaGateway,
     private readonly usuarioGateway: UsuarioGateway,
-    private readonly email: EmailGateway
+    private readonly email: EmailGateway,
+    private readonly analyticsGateway: AnalyticsGateway
   ) {}
 
-  public static criar(paginaGateway: PaginaGateway, usuarioGateway: UsuarioGateway, email: EmailGateway) {
-    return new EnviarFormularioPagina(paginaGateway, usuarioGateway, email);
+  public static criar(
+    paginaGateway: PaginaGateway,
+    usuarioGateway: UsuarioGateway,
+    email: EmailGateway,
+    analyticsGateway: AnalyticsGateway
+  ) {
+    return new EnviarFormularioPagina(paginaGateway, usuarioGateway, email, analyticsGateway);
   }
 
   public async executar(input: { slug: string; assunto?: string; campos: CampoFormularioEnviado[] }) {
@@ -56,23 +63,31 @@ export class EnviarFormularioPagina implements CasoDeUso<
         status: StatusErro.erroParametro,
       });
     }
-    const linhas = (input.campos || []).map((campo) => {
-      if (campo.tipo === "check") return `${campo.rotulo}: ${campo.valor ? "sim" : "não"}`;
+    const camposLimpos = (input.campos || []).map((campo) => {
+      if (campo.tipo === "check") {
+        return { rotulo: campo.rotulo, valor: campo.valor ? "sim" : "não" };
+      }
       const valor = campo.valor == null ? "" : String(campo.valor).trim();
-      return valor ? `${campo.rotulo}: ${valor}` : "";
-    }).filter(Boolean);
-    if (!linhas.length) {
+      return valor ? { rotulo: campo.rotulo, valor } : null;
+    }).filter((campo): campo is { rotulo: string; valor: string } => Boolean(campo));
+
+    if (!camposLimpos.length) {
       throw ErroPersonalizado.criar({
         mensagem: "Preencha o formulário antes de enviar.",
         status: StatusErro.erroParametro,
       });
     }
+    const linhas = camposLimpos.map((campo) => `${campo.rotulo}: ${campo.valor}`);
     const modelo = emailFormulario(pagina.titulo, pagina.slug, input.assunto || "", linhas);
     await this.email.enviar({
       para: destEmail,
       assunto: modelo.assunto,
       texto: modelo.texto,
       html: modelo.html,
+    });
+    await this.analyticsGateway.guardarResposta(pagina.id, {
+      assunto: input.assunto,
+      campos: camposLimpos,
     });
     return { ok: true as const };
   }

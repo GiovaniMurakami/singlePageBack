@@ -17,6 +17,8 @@ export type DiaAnalytics = {
   vistos: string[];
 };
 
+export type DiaAnalyticsPublico = Omit<DiaAnalytics, "vistos">;
+
 export type EventoAnalytics = {
   tipo: "visita" | "clique" | "formulario";
   visitanteId?: string;
@@ -25,7 +27,21 @@ export type EventoAnalytics = {
   hora?: number;
 };
 
+export type RespostaFormulario = {
+  id: string;
+  recebidoEm: string;
+  assunto?: string;
+  campos: { rotulo: string; valor: string }[];
+};
+
 export interface AnalyticsGateway {
   registrar(paginaId: string, evento: EventoAnalytics): Promise<void>;
-  obter(paginaId: string, dias?: number): Promise<{ totais: TotaisAnalytics; serie: DiaAnalytics[] }>;
+  guardarResposta(
+    paginaId: string,
+    resposta: { assunto?: string; campos: { rotulo: string; valor: string }[] }
+  ): Promise<void>;
+  obter(
+    paginaId: string,
+    dias?: number
+  ): Promise<{ totais: TotaisAnalytics; serie: DiaAnalyticsPublico[]; respostas: RespostaFormulario[] }>;
 }

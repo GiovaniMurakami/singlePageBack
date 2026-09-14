@@ -43,7 +43,7 @@ export function criarCasosDeUso(repos: Repositorios, servicos: Servicos) {
     publicarPagina: PublicarPagina.criar(repos.pagina, repos.usuario, servicos.email),
     excluirPagina: ExcluirPagina.criar(repos.pagina),
     buscarPaginaPublica: BuscarPaginaPublica.criar(repos.pagina, repos.usuario),
-    enviarFormularioPagina: EnviarFormularioPagina.criar(repos.pagina, repos.usuario, servicos.email),
+    enviarFormularioPagina: EnviarFormularioPagina.criar(repos.pagina, repos.usuario, servicos.email, repos.analytics),
     registrarEventoPagina: RegistrarEventoPagina.criar(repos.pagina, repos.analytics),
     obterAnalyticsPagina: ObterAnalyticsPagina.criar(repos.pagina, repos.analytics),
     listarPlanos: ListarPlanos.criar(),
