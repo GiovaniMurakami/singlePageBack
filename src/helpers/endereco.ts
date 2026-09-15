@@ -14,6 +14,7 @@ const ENDERECOS_RESERVADOS = new Set([
   "entrar",
   "cadastrar",
   "precos",
+  "comunidade",
   "conta",
   "termos",
   "privacidade",

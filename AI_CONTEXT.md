@@ -32,6 +32,8 @@ PUT  /pagina/:id
 POST /pagina/:id/publicar
 DELETE /pagina/:id
 GET  /p/:slug
+GET  /comunidade
+POST /comunidade/:paginaId/curtida
 GET  /assinatura/planos
 POST /assinatura/checkout, /portal, /webhook
 POST /imagem/upload-url
@@ -40,6 +42,8 @@ POST /usuario/verificar-email, /reenviar-verificacao, /esqueci-senha, /redefinir
 POST /p/:slug/formulario
 GET  /health
 ```
+
+`GET /comunidade` lista páginas publicadas (scan `entity=PAGE`), com curtidas e badge **hot** (top 3 com pelo menos 1 curtida). `POST /comunidade/:paginaId/curtida` exige JWT e alterna like (1 por usuário).
 
 `GET /health` → 200. `HEAD /health` no API Gateway custom domain devolve 403 `MissingAuthenticationToken` — ignorar.
 

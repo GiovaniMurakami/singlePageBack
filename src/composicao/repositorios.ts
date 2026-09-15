@@ -3,6 +3,7 @@ import { PaginaDynamoRepositorio } from "../infra/dynamodb/repositorios/paginaDy
 import { RefreshTokenDynamoRepositorio } from "../infra/dynamodb/repositorios/refreshTokenDynamoRepositorio";
 import { TokenBlacklistDynamoRepositorio } from "../infra/dynamodb/repositorios/tokenBlacklistDynamoRepositorio";
 import { AnalyticsDynamoRepositorio } from "../infra/dynamodb/repositorios/analyticsDynamoRepositorio";
+import { ComunidadeDynamoRepositorio } from "../infra/dynamodb/repositorios/comunidadeDynamoRepositorio";
 
 export function criarRepositorios() {
   return {
@@ -11,6 +12,7 @@ export function criarRepositorios() {
     refreshToken: RefreshTokenDynamoRepositorio.criar(),
     tokenBlacklist: TokenBlacklistDynamoRepositorio.criar(),
     analytics: AnalyticsDynamoRepositorio.criar(),
+    comunidade: ComunidadeDynamoRepositorio.criar(),
   };
 }
 
