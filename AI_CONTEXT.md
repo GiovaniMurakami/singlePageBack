@@ -70,6 +70,8 @@ Nunca mandar commit direto em `production`. Sempre:
 Stages Serverless: `dev` → `yvauyxdyic` / `https://api.homolog.singlepage.com.br`  
 `prod` → `mao94ci2z8` / `https://api.singlepage.com.br`
 
+Env no deploy: stage `dev` lê `.env.dev` (symlink para `.env.homolog`); stage `prod` lê `.env.prod`. Sem `.env.dev`, o `.env` local sobrescreve JWT/CORS e a Lambda homolog sobe quebrada.
+
 Tabelas: `single-page-dev-data` / `single-page-prod-data`.
 
 ## Stripe
