@@ -6,7 +6,11 @@ export type ItemComunidade = {
   autorNome: string;
   temaFundo: string;
   temaDestaque: string;
+  temaTexto: string;
   capaUrl: string | null;
+  previewTitulo: string;
+  previewSubtitulo: string;
+  previewCta: string;
   publicadoEm: string | null;
   atualizadoEm: string;
   curtidas: number;

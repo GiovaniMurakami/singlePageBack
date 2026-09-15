@@ -12,17 +12,24 @@ type PaginaItem = {
   titulo: string;
   slug: string;
   publicada: boolean;
-  tema?: { fundo?: string; destaque?: string };
+  tema?: { fundo?: string; destaque?: string; texto?: string };
   blocos?: Array<{ tipo: string; props?: Record<string, unknown> }>;
   publicadoEm: string | null;
   atualizadoEm: string;
 };
 
+function textoCurto(valor: unknown, max = 72): string {
+  if (typeof valor !== "string") return "";
+  const limpo = valor.replace(/\s+/g, " ").trim();
+  if (!limpo) return "";
+  return limpo.length > max ? `${limpo.slice(0, max - 1)}…` : limpo;
+}
+
 function extrairCapa(blocos: PaginaItem["blocos"] = []): string | null {
   for (const bloco of blocos) {
     const props = bloco.props || {};
     if (bloco.tipo === "capa") {
-      const url = props.imagem || props.url || props.src;
+      const url = props.fotoUrl || props.imagem || props.url || props.src;
       if (typeof url === "string" && url) return url;
     }
     if (bloco.tipo === "imagem") {
@@ -35,6 +42,35 @@ function extrairCapa(blocos: PaginaItem["blocos"] = []): string | null {
     }
   }
   return null;
+}
+
+function extrairPreview(blocos: PaginaItem["blocos"] = [], fallbackTitulo: string) {
+  let previewTitulo = "";
+  let previewSubtitulo = "";
+  let previewCta = "";
+
+  for (const bloco of blocos) {
+    const props = bloco.props || {};
+    if (bloco.tipo === "capa") {
+      if (!previewTitulo) previewTitulo = textoCurto(props.titulo, 40);
+      if (!previewSubtitulo) previewSubtitulo = textoCurto(props.subtitulo, 56);
+      if (!previewCta) previewCta = textoCurto(props.cta, 24);
+    }
+    if (bloco.tipo === "texto" && !previewSubtitulo) {
+      previewSubtitulo = textoCurto(props.corpo || props.titulo, 56);
+    }
+    if (bloco.tipo === "botoes" && !previewCta) {
+      const itens = Array.isArray(props.itens) ? props.itens : [];
+      const primeiro = itens[0] as { rotulo?: unknown; texto?: unknown } | undefined;
+      previewCta = textoCurto(primeiro?.rotulo || primeiro?.texto, 24);
+    }
+  }
+
+  return {
+    previewTitulo: previewTitulo || textoCurto(fallbackTitulo, 40) || "Página",
+    previewSubtitulo,
+    previewCta: previewCta || "Ver mais",
+  };
 }
 
 export class ComunidadeDynamoRepositorio extends BaseDynamoRepositorio implements ComunidadeGateway {
@@ -50,17 +86,22 @@ export class ComunidadeDynamoRepositorio extends BaseDynamoRepositorio implement
     const itens = await this.scanEntityJson<PaginaItem>("PAGE");
     return itens
       .filter((item) => item?.publicada && item.id && item.slug)
-      .map((item) => ({
-        paginaId: item.id,
-        slug: item.slug,
-        titulo: item.titulo || "Sem título",
-        autorId: item.usuarioId,
-        temaFundo: item.tema?.fundo || "#f6f1ea",
-        temaDestaque: item.tema?.destaque || "#c2410c",
-        capaUrl: extrairCapa(item.blocos),
-        publicadoEm: item.publicadoEm,
-        atualizadoEm: item.atualizadoEm,
-      }));
+      .map((item) => {
+        const preview = extrairPreview(item.blocos, item.titulo || "Sem título");
+        return {
+          paginaId: item.id,
+          slug: item.slug,
+          titulo: item.titulo || "Sem título",
+          autorId: item.usuarioId,
+          temaFundo: item.tema?.fundo || "#f6f1ea",
+          temaDestaque: item.tema?.destaque || "#c2410c",
+          temaTexto: item.tema?.texto || "#1c1917",
+          capaUrl: extrairCapa(item.blocos),
+          ...preview,
+          publicadoEm: item.publicadoEm,
+          atualizadoEm: item.atualizadoEm,
+        };
+      });
   }
 
   public async obterTotaisCurtidas(paginaIds: string[]): Promise<Record<string, number>> {
