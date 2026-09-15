@@ -23,6 +23,8 @@ import { EnviarPedidoAjuda } from "../casosDeUso/suporte/enviarPedidoAjuda";
 import { VerificarEmail, ReenviarVerificacaoEmail } from "../casosDeUso/usuario/verificarEmail";
 import { PedirRedefinicaoSenha, RedefinirSenha, AlterarSenha } from "../casosDeUso/usuario/senha";
 import { EnviarFormularioPagina } from "../casosDeUso/pagina/enviarFormularioPagina";
+import { ListarComunidade } from "../casosDeUso/comunidade/listarComunidade";
+import { AlternarCurtida } from "../casosDeUso/comunidade/alternarCurtida";
 
 export function criarCasosDeUso(repos: Repositorios, servicos: Servicos) {
   return {
@@ -46,6 +48,8 @@ export function criarCasosDeUso(repos: Repositorios, servicos: Servicos) {
     enviarFormularioPagina: EnviarFormularioPagina.criar(repos.pagina, repos.usuario, servicos.email, repos.analytics),
     registrarEventoPagina: RegistrarEventoPagina.criar(repos.pagina, repos.analytics),
     obterAnalyticsPagina: ObterAnalyticsPagina.criar(repos.pagina, repos.analytics),
+    listarComunidade: ListarComunidade.criar(repos.comunidade, repos.usuario),
+    alternarCurtida: AlternarCurtida.criar(repos.comunidade, repos.pagina),
     listarPlanos: ListarPlanos.criar(),
     criarCheckout: CriarCheckout.criar(repos.usuario, servicos.stripe),
     criarPortal: CriarPortal.criar(repos.usuario, servicos.stripe),
