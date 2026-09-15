@@ -50,6 +50,7 @@ provider:
             - dynamodb:PutItem
             - dynamodb:DeleteItem
             - dynamodb:Query
+            - dynamodb:Scan
             - dynamodb:UpdateItem
             - dynamodb:TransactWriteItems
           Resource:
