@@ -32,6 +32,10 @@ import {
 } from "../infra/api/express/rotas/assinatura/assinaturaRotas.express.route";
 import { GerarUrlUploadImagemRota } from "../infra/api/express/rotas/imagem/gerarUrlUploadImagem.express.route";
 import { EnviarPedidoAjudaRota } from "../infra/api/express/rotas/suporte/suporteRotas.express.route";
+import {
+  AlternarCurtidaRota,
+  ListarComunidadeRota,
+} from "../infra/api/express/rotas/comunidade/comunidadeRotas.express.route";
 
 export function criarRotas(casos: CasosDeUso) {
   return [
@@ -56,6 +60,8 @@ export function criarRotas(casos: CasosDeUso) {
     EnviarFormularioPaginaRota.criar(casos.enviarFormularioPagina),
     RegistrarEventoPaginaRota.criar(casos.registrarEventoPagina),
     ObterAnalyticsPaginaRota.criar(casos.obterAnalyticsPagina),
+    ListarComunidadeRota.criar(casos.listarComunidade),
+    AlternarCurtidaRota.criar(casos.alternarCurtida),
     ListarPlanosRota.criar(casos.listarPlanos),
     CriarCheckoutRota.criar(casos.criarCheckout),
     CriarPortalRota.criar(casos.criarPortal),

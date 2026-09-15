@@ -3,6 +3,7 @@ import {
   DynamoDBClient,
   GetItemCommand,
   QueryCommand,
+  ScanCommand,
   TransactWriteItemsCommand,
   type AttributeValue,
   type TransactWriteItem,
@@ -141,6 +142,32 @@ export abstract class BaseDynamoRepositorio {
         sk: { S: sk },
       },
     }));
+  }
+
+  protected async scanEntityJson<T>(entity: string): Promise<T[]> {
+    this.assertTabelaConfigurada();
+    const itens: T[] = [];
+    let exclusiveStartKey: DynamoItem | undefined;
+
+    do {
+      const resposta = await this.cliente.send(new ScanCommand({
+        TableName: this.tabela,
+        FilterExpression: "entity = :entity",
+        ExpressionAttributeValues: {
+          ":entity": { S: entity },
+        },
+        ExclusiveStartKey: exclusiveStartKey,
+      }));
+
+      itens.push(
+        ...(resposta.Items ?? [])
+          .map((item) => this.itemParaJson<T>(item))
+          .filter((item): item is T => item !== null)
+      );
+      exclusiveStartKey = resposta.LastEvaluatedKey;
+    } while (exclusiveStartKey);
+
+    return itens;
   }
 
   private itemParaJson<T>(item?: DynamoItem): T | null {
